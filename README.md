@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FLAVOUR HUB — Premium Street Food</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Playfair Display', 'serif'],
+                        body: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            gold: '#d4a853',
+                            'gold-light': '#f0c674',
+                            'gold-dark': '#b8902e',
+                            dark: '#0a0a0a',
+                            'dark-card': '#141414',
+                            'dark-surface': '#1a1a1a',
+                            warm: '#e8722a',
+                            cream: '#faf5eb',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #faf5eb; overflow-x: hidden; }
+        .font-display { font-family: 'Playfair Display', serif; }
+
+        /* Loading Screen */
+        #loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: #0a0a0a;
+            display: flex; align-items: center; justify-content: center; flex-direction: column;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+        }
+        #loader.hidden { opacity: 0; visibility: hidden; }
+        .loader-ring {
+            width: 56px; height: 56px;
+            border: 3px solid rgba(212,168,83,0.15);
+            border-top-color: #d4a853;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(20,20,20,0.65);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(212,168,83,0.12);
+        }
+        .glass-light {
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        /* Gradient Buttons */
+        .btn-gold {
+            background: linear-gradient(135deg, #d4a853 0%, #e8722a 100%);
+            box-shadow: 0 4px 20px rgba(212,168,83,0.35);
+            transition: all 0.3s ease;
+        }
+        .btn-gold:hover {
+            box-shadow: 0 6px 30px rgba(212,168,83,0.55);
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            border: 1.5px solid rgba(212,168,83,0.5);
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+        .btn-outline:hover {
+            background: rgba(212,168,83,0.1);
+            border-color: #d4a853;
+            transform: translateY(-2px);
+        }
+
+        /* Scroll Animations */
+        .reveal {
+            opacity: 0; transform: translateY(40px);
+            transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .reveal-left {
+            opacity: 0; transform: translateX(-50px);
+            transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal-left.visible { opacity: 1; transform: translateX(0); }
+        .reveal-right {
+            opacity: 0; transform: translateX(50px);
+            transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+        }
+        .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+        /* Star ratings */
+        .star-gold { color: #d4a853; }
+        .star-dim { color: rgba(212,168,83,0.25); }
+
+        /* Menu card hover */
+        .menu-card {
+            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1), box-shadow 0.4s ease;
+        }
+        .menu-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(212,168,83,0.15);
+        }
+        .menu-card .menu-img {
+            transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+        }
+        .menu-card:hover .menu-img {
+            transform: scale(1.08);
+        }
+
+        /* Feature card hover */
+        .feature-card {
+            transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 15px 40px rgba(212,168,83,0.12);
+            border-color: rgba(212,168,83,0.3);
+        }
+
+        /* Navbar transition */
+        .nav-solid {
+            background: rgba(10,10,10,0.95) !important;
+            backdrop-filter: blur(20px) !important;
+            border-bottom: 1px solid rgba(212,168,83,0.1) !important;
+        }
+
+        /* Slider */
+        .slider-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
+        }
+
+        /* Back to top */
+        #backToTop {
+            opacity: 0; visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        #backToTop.show { opacity: 1; visibility: visible; }
+
+        /* Testimonial */
+        .testimonial-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .testimonial-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(212,168,83,0.1);
+        }
+
+        /* Decorative line */
+        .gold-line {
+            width: 60px; height: 2px;
+            background: linear-gradient(90deg, #d4a853, #e8722a);
+        }
+
+        /* Pulse for WhatsApp */
+        .pulse-green::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            background: rgba(37,211,102,0.3);
+            animation: pulse-ring 2s ease-out infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: rgba(212,168,83,0.4); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(212,168,83,0.6); }
+
+        /* Mobile menu */
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .mobile-menu.open { transform: translateX(0); }
+
+        /* Hero parallax overlay pattern */
+        .hero-pattern {
+            background-image: radial-gradient(rgba(212,168,83,0.07) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Cart badge bounce */
+        @keyframes badge-bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+        .badge-bounce { animation: badge-bounce 0.4s ease; }
+
+        /* Toast */
+        .toast {
+            transform: translateY(20px); opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16,1,0.3,1);
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+    </style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loader">
+    <div class="loader-ring mb-5"></div>
+    <p class="font-display text-brand-gold text-xl tracking-widest">FLAVOUR HUB</p>
+</div>
+
+<!-- Navbar -->
+<nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-500 border-b border-transparent">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20">
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center">
+                    <i class="fa-solid fa-fire-flame-curved text-brand-dark text-lg"></i>
+                </div>
+                <span class="font-display text-xl font-semibold tracking-wide text-brand-cream group-hover:text-brand-gold transition-colors duration-300">FLAVOUR HUB</span>
+            </a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#menu" class="text-sm font-medium text-brand-cream/70 hover:text-brand-gold transition-colors duration-300 tracking-wide">Menu</a>
+                <a href="#why-us" class="text-sm font-medium text-brand-cream/70 hover:text-brand-gold transition-colors duration-300 tracking-wide">Why Us</a>
+                <a href="#chef" class="text-sm font-medium text-brand-cream/70 hover:text-brand-gold transition-colors duration-300 tracking-wide">Chef's Special</a>
+                <a href="#location" class="text-sm font-medium text-brand-cream/70 hover:text-brand-gold transition-colors duration-300 tracking-wide">Location</a>
+                <a href="#reviews" class="text-sm font-medium text-brand-cream/70 hover:text-brand-gold transition-colors duration-300 tracking-wide">Reviews</a>
+            </div>
+
+            <!-- Right actions -->
+            <div class="flex items-center gap-4">
+                <!-- Cart icon -->
+                <button id="cartBtn" class="relative p-2 text-brand-cream/70 hover:text-brand-gold transition-colors duration-300" aria-label="Cart">
+                    <i class="fa-solid fa-bag-shopping text-lg"></i>
+                    <span id="cartBadge" class="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-brand-gold to-brand-warm text-brand-dark text-[10px] font-bold rounded-full flex items-center justify-center">0</span>
+                </button>
+                <!-- Order Now -->
+                <a href="#order" class="hidden sm:inline-flex btn-gold text-brand-dark text-xs font-semibold tracking-wider uppercase px-5 py-2.5 rounded-full">
+                    Order Now
+                </a>
+                <!-- Mobile menu toggle -->
+                <button id="menuToggle" class="md:hidden p-2 text-brand-cream/70 hover:text-brand-gold transition-colors" aria-label="Menu">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div id="mobileMenu" class="mobile-menu fixed inset-y-0 right-0 w-72 z-50 glass" style="background: rgba(10,10,10,0.97);">
+    <div class="p-6">
+        <div class="flex justify-between items-center mb-10">
+            <span class="font-display text-brand-gold text-lg">Menu</span>
+            <button id="menuClose" class="text-brand-cream/60 hover:text-brand-gold transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        <div class="flex flex-col gap-6">
+            <a href="#menu" class="mobile-link text-lg font-medium text-brand-cream/70 hover:text-brand-gold transition-colors">Menu</a>
+            <a href="#why-us" class="mobile-link text-lg font-medium text-brand-cream/70 hover:text-brand-gold transition-colors">Why Us</a>
+            <a href="#chef" class="mobile-link text-lg font-medium text-brand-cream/70 hover:text-brand-gold transition-colors">Chef's Special</a>
+            <a href="#location" class="mobile-link text-lg font-medium text-brand-cream/70 hover:text-brand-gold transition-colors">Location</a>
+            <a href="#reviews" class="mobile-link text-lg font-medium text-brand-cream/70 hover:text-brand-gold transition-colors">Reviews</a>
+            <div class="gold-line mt-2"></div>
+            <a href="#order" class="btn-gold text-brand-dark text-sm font-semibold tracking-wider uppercase px-6 py-3 rounded-full text-center mt-2">Order Now</a>
+        </div>
+    </div>
+</div>
+<div id="menuOverlay" class="fixed inset-0 z-40 bg-black/60 hidden"></div>
+
+<!-- Hero Section -->
+<section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Background Image -->
+    <div class="absolute inset-0">
+        <img src="https://picsum.photos/seed/flavourhub-hero/1920/1080.jpg" alt="Hero background" class="w-full h-full object-cover">
+    </div>
+    <!-- Overlays -->
+    <div class="absolute inset-0 bg-gradient-to-b from-brand-dark/80 via-brand-dark/60 to-brand-dark/95"></div>
+    <div class="absolute inset-0 hero-pattern"></div>
+    <!-- Gradient orb -->
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-brand-gold/8 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <!-- Content -->
+    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        <div class="reveal" style="transition-delay:0.2s">
+            <span class="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-brand-gold/80 mb-6">
+                <span class="w-8 h-px bg-brand-gold/50"></span>
+                Premium Street Food
+                <span class="w-8 h-px bg-brand-gold/50"></span>
+            </span>
+        </div>
+        <h1 class="reveal font-display text-5xl sm:text-6xl md:text-8xl font-bold text-brand-cream leading-[1.05] tracking-tight mb-6" style="transition-delay:0.35s">
+            FLAVOUR<br><span class="bg-gradient-to-r from-brand-gold via-brand-gold-light to-brand-warm bg-clip-text text-transparent">HUB</span>
+        </h1>
+        <p class="reveal text-base sm:text-lg md:text-xl text-brand-cream/60 font-light max-w-xl mx-auto mb-10 leading-relaxed" style="transition-delay:0.5s">
+            Where bold spices meet refined craft. Every bite tells a story of passion, tradition, and unforgettable taste.
+        </p>
+        <div class="reveal flex flex-col sm:flex-row gap-4 justify-center" style="transition-delay:0.65s">
+            <a href="#menu" class="btn-gold text-brand-dark text-sm font-semibold tracking-wider uppercase px-8 py-4 rounded-full inline-flex items-center justify-center gap-2">
+                <i class="fa-solid fa-utensils"></i> View Menu
+            </a>
+            <a href="#order" class="btn-outline text-brand-gold text-sm font-semibold tracking-wider uppercase px-8 py-4 rounded-full inline-flex items-center justify-center gap-2">
+                <i class="fa-solid fa-motorcycle"></i> Order Online
+            </a>
+        </div>
+        <!-- Scroll indicator -->
+        <div class="reveal mt-16 flex flex-col items-center gap-2 text-brand-cream/30" style="transition-delay:0.85s">
+            <span class="text-[10px] tracking-widest uppercase">Scroll Down</span>
+            <div class="w-5 h-8 rounded-full border border-brand-cream/20 flex justify-center pt-1.5">
+                <div class="w-1 h-2 bg-brand-gold/60 rounded-full animate-bounce"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Premium Menu Grid -->
+<section id="menu" class="py-20 sm:py-28 px-4 relative">
+    <div class="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-warm/5 rounded-full blur-[100px] pointer-events-none"></div>
+    <div class="max-w-7xl mx-auto">
+        <!-- Section header -->
+        <div class="text-center mb-16 reveal">
+            <span class="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-brand-gold/70 mb-4">
+                <span class="w-6 h-px bg-brand-gold/40"></span> Our Signature <span class="w-6 h-px bg-brand-gold/40"></span>
+            </span>
+            <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-brand-cream tracking-tight">Premium Menu</h2>
+            <div class="gold-line mx-auto mt-5"></div>
+        </div>
+
+        <!-- Menu Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+
+            <!-- Dish 1 -->
+            <div class="menu-card glass-light rounded-2xl overflow-hidden group reveal" style="transition-delay:0.1s">
+                <div class="relative h-56 sm:h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/dish-tandoori/600/400.jpg" alt="Tandoori Delight" class="menu-img w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                    <span class="absolute top-4 right-4 bg-brand-warm/90 text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full">Bestseller</span>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                        <h3 class="font-display text-lg font-semibold text-brand-cream">Tandoori Delight</h3>
+                        <span class="text-brand-gold font-semibold text-lg whitespace-nowrap">₹249</span>
+                    </div>
+                    <p class="text-brand-cream/50 text-sm leading-relaxed mb-3">Smoky tandoor-fired chicken with aromatic spices, served with mint chutney and fresh naan.</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-0.5">
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                        </div>
+                        <button onclick="addToCart('Tandoori Delight')" class="btn-gold text-brand-dark text-[11px] font-semibold tracking-wider uppercase px-4 py-2 rounded-full">Order Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dish 2 -->
+            <div class="menu-card glass-light rounded-2xl overflow-hidden group reveal" style="transition-delay:0.2s">
+                <div class="relative h-56 sm:h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/dish-biriyani/600/400.jpg" alt="Royal Biriyani" class="menu-img w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                    <span class="absolute top-4 right-4 bg-brand-gold/90 text-brand-dark text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full">Chef's Pick</span>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                        <h3 class="font-display text-lg font-semibold text-brand-cream">Royal Biriyani</h3>
+                        <span class="text-brand-gold font-semibold text-lg whitespace-nowrap">₹299</span>
+                    </div>
+                    <p class="text-brand-cream/50 text-sm leading-relaxed mb-3">Slow-cooked basmati layered with tender lamb, saffron, and a secret blend of 18 spices.</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-0.5">
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star-half-stroke star-gold text-xs"></i>
+                        </div>
+                        <button onclick="addToCart('Royal Biriyani')" class="btn-gold text-brand-dark text-[11px] font-semibold tracking-wider uppercase px-4 py-2 rounded-full">Order Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dish 3 -->
+            <div class="menu-card glass-light rounded-2xl overflow-hidden group reveal" style="transition-delay:0.3s">
+                <div class="relative h-56 sm:h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/dish-butterchicken/600/400.jpg" alt="Butter Chicken" class="menu-img w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                        <h3 class="font-display text-lg font-semibold text-brand-cream">Butter Chicken</h3>
+                        <span class="text-brand-gold font-semibold text-lg whitespace-nowrap">₹279</span>
+                    </div>
+                    <p class="text-brand-cream/50 text-sm leading-relaxed mb-3">Rich, creamy tomato-butter gravy with succulent chicken pieces. A timeless classic perfected.</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-0.5">
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                        </div>
+                        <button onclick="addToCart('Butter Chicken')" class="btn-gold text-brand-dark text-[11px] font-semibold tracking-wider uppercase px-4 py-2 rounded-full">Order Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dish 4 -->
+            <div class="menu-card glass-light rounded-2xl overflow-hidden group reveal" style="transition-delay:0.15s">
+                <div class="relative h-56 sm:h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/dish-panipuri/600/400.jpg" alt="Spicy Pani Puri" class="menu-img w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                        <h3 class="font-display text-lg font-semibold text-brand-cream">Spicy Pani Puri</h3>
+                        <span class="text-brand-gold font-semibold text-lg whitespace-nowrap">₹99</span>
+                    </div>
+                    <p class="text-brand-cream/50 text-sm leading-relaxed mb-3">Crispy puris filled with tangy, spiced water and chickpeas. Street food at its finest.</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-0.5">
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-regular fa-star star-dim text-xs"></i>
+                        </div>
+                        <button onclick="addToCart('Spicy Pani Puri')" class="btn-gold text-brand-dark text-[11px] font-semibold tracking-wider uppercase px-4 py-2 rounded-full">Order Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dish 5 -->
+            <div class="menu-card glass-light rounded-2xl overflow-hidden group reveal" style="transition-delay:0.25s">
+                <div class="relative h-56 sm:h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/dish-kebab/600/400.jpg" alt="Seekh Kebab" class="menu-img w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                    <span class="absolute top-4 right-4 bg-green-600/90 text-white text-[10px] font-bold tracking-wider uppercase px-3 py-1 rounded-full">New</span>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                        <h3 class="font-display text-lg font-semibold text-brand-cream">Seekh Kebab</h3>
+                        <span class="text-brand-gold font-semibold text-lg whitespace-nowrap">₹199</span>
+                    </div>
+                    <p class="text-brand-cream/50 text-sm leading-relaxed mb-3">Charcoal-grilled minced lamb kebabs with fresh herbs and a smoky, juicy finish.</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-0.5">
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star-half-stroke star-gold text-xs"></i>
+                        </div>
+                        <button onclick="addToCart('Seekh Kebab')" class="btn-gold text-brand-dark text-[11px] font-semibold tracking-wider uppercase px-4 py-2 rounded-full">Order Now</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dish 6 -->
+            <div class="menu-card glass-light rounded-2xl overflow-hidden group reveal" style="transition-delay:0.35s">
+                <div class="relative h-56 sm:h-64 overflow-hidden">
+                    <img src="https://picsum.photos/seed/dish-gulabjamun/600/400.jpg" alt="Gulab Jamun" class="menu-img w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-start justify-between gap-3 mb-2">
+                        <h3 class="font-display text-lg font-semibold text-brand-cream">Gulab Jamun</h3>
+                        <span class="text-brand-gold font-semibold text-lg whitespace-nowrap">₹129</span>
+                    </div>
+                    <p class="text-brand-cream/50 text-sm leading-relaxed mb-3">Soft, melt-in-mouth milk dumplings soaked in cardamom-rose syrup. Pure sweet bliss.</p>
+                    <div class="flex items-center justify-between">
+                        <div class="flex gap-0.5">
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                            <i class="fa-solid fa-star star-gold text-xs"></i>
+                        </div>
+                        <button onclick="addToCart('Gulab Jamun')" class="btn-gold text-brand-dark text-[11px] font-semibold tracking-wider uppercase px-4 py-2 rounded-full">Order Now</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- Why Choose Us -->
+<section id="why-us" class="py-20 sm:py-28 px-4 relative">
+    <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-brand-gold/5 rounded-full blur-[100px] pointer-events-none"></div>
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-brand-gold/70 mb-4">
+                <span class="w-6 h-px bg-brand-gold/40"></span> The Difference <span class="w-6 h-px bg-brand-gold/40"></span>
+            </span>
+            <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-brand-cream tracking-tight">Why Choose Us</h2>
+            <div class="gold-line mx-auto mt-5"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+            <!-- Card 1 -->
+            <div class="feature-card glass-light rounded-2xl p-8 text-center reveal" style="transition-delay:0.1s">
+                <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-brand-gold/20 to-brand-warm/10 flex items-center justify-center">
+                    <i class="fa-solid fa-leaf text-brand-gold text-2xl"></i>
+                </div>
+                <h3 class="font-display text-xl font-semibold text-brand-cream mb-3">Fresh Ingredients</h3>
+                <p class="text-brand-cream/50 text-sm leading-relaxed">Locally sourced, farm-fresh produce every single day. No shortcuts, no compromises — just pure, vibrant flavors.</p>
+            </div>
+            <!-- Card 2 -->
+            <div class="feature-card glass-light rounded-2xl p-8 text-center reveal" style="transition-delay:0.2s">
+                <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-brand-gold/20 to-brand-warm/10 flex items-center justify-center">
+                    <i class="fa-solid fa-shield-halved text-brand-gold text-2xl"></i>
+                </div>
+                <h3 class="font-display text-xl font-semibold text-brand-cream mb-3">Hygiene Certified</h3>
+                <p class="text-brand-cream/50 text-sm leading-relaxed">FSSAI certified kitchen with rigorous safety standards. Spotless preparation from start to plate.</p>
+            </div>
+            <!-- Card 3 -->
+            <div class="feature-card glass-light rounded-2xl p-8 text-center reveal" style="transition-delay:0.3s">
+                <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-brand-gold/20 to-brand-warm/10 flex items-center justify-center">
+                    <i class="fa-solid fa-bolt text-brand-gold text-2xl"></i>
+                </div>
+                <h3 class="font-display text-xl font-semibold text-brand-cream mb-3">Fast Delivery</h3>
+                <p class="text-brand-cream/50 text-sm leading-relaxed">Hot food at your door in under 30 minutes. Our delivery network ensures every meal arrives perfectly.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Chef's Special -->
+<section id="chef" class="py-20 sm:py-28 px-4 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-brand-dark via-brand-dark-surface to-brand-dark pointer-events-none"></div>
+    <div class="relative max-w-6xl mx-auto">
+        <div class="text-center mb-14 reveal">
+            <span class="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-brand-gold/70 mb-4">
+                <span class="w-6 h-px bg-brand-gold/40"></span> Exclusive <span class="w-6 h-px bg-brand-gold/40"></span>
+            </span>
+            <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-brand-cream tracking-tight">Chef's Special</h2>
+            <div class="gold-line mx-auto mt-5"></div>
+        </div>
+
+        <!-- Slider -->
+        <div class="relative reveal" style="transition-delay:0.15s">
+            <div class="overflow-hidden rounded-2xl">
+                <div id="chefSlider" class="slider-track">
+                    <!-- Slide 1 -->
+                    <div class="min-w-full flex flex-col md:flex-row items-stretch">
+                        <div class="md:w-1/2 h-64 md:h-auto relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/chef-special1/800/500.jpg" alt="Chef Special 1" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent to-brand-dark-surface/80 hidden md:block"></div>
+                        </div>
+                        <div class="md:w-1/2 glass-light p-8 md:p-12 flex flex-col justify-center">
+                            <span class="inline-flex items-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-brand-warm mb-3">
+                                <i class="fa-solid fa-fire-flame-curved"></i> Today's Special
+                            </span>
+                            <h3 class="font-display text-2xl md:text-3xl font-bold text-brand-cream mb-3">Awadhi Gosht Korma</h3>
+                            <p class="text-brand-cream/50 text-sm leading-relaxed mb-5">A royal recipe from the kitchens of Lucknow — slow-braised mutton in a velvety cashew-yogurt gravy with aromatic saffron strands.</p>
+                            <div class="flex items-center gap-4 mb-6">
+                                <span class="text-brand-gold font-display text-2xl font-bold">₹399</span>
+                                <span class="text-brand-cream/30 text-sm line-through">₹549</span>
+                                <span class="bg-brand-warm/20 text-brand-warm text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full">27% Off</span>
+                            </div>
+                            <button onclick="addToCart('Awadhi Gosht Korma')" class="btn-gold text-brand-dark text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-full self-start inline-flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Add to Order
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Slide 2 -->
+                    <div class="min-w-full flex flex-col md:flex-row items-stretch">
+                        <div class="md:w-1/2 h-64 md:h-auto relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/chef-special2/800/500.jpg" alt="Chef Special 2" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent to-brand-dark-surface/80 hidden md:block"></div>
+                        </div>
+                        <div class="md:w-1/2 glass-light p-8 md:p-12 flex flex-col justify-center">
+                            <span class="inline-flex items-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-brand-warm mb-3">
+                                <i class="fa-solid fa-crown"></i> Weekend Special
+                            </span>
+                            <h3 class="font-display text-2xl md:text-3xl font-bold text-brand-cream mb-3">Truffle Mushroom Kulcha</h3>
+                            <p class="text-brand-cream/50 text-sm leading-relaxed mb-5">Stuffed kulcha with wild mushroom and truffle oil, baked in our traditional tandoor. Served with rich dal makhani.</p>
+                            <div class="flex items-center gap-4 mb-6">
+                                <span class="text-brand-gold font-display text-2xl font-bold">₹349</span>
+                                <span class="text-brand-cream/30 text-sm line-through">₹449</span>
+                                <span class="bg-brand-warm/20 text-brand-warm text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full">22% Off</span>
+                            </div>
+                            <button onclick="addToCart('Truffle Mushroom Kulcha')" class="btn-gold text-brand-dark text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-full self-start inline-flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Add to Order
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="min-w-full flex flex-col md:flex-row items-stretch">
+                        <div class="md:w-1/2 h-64 md:h-auto relative overflow-hidden">
+                            <img src="https://picsum.photos/seed/chef-special3/800/500.jpg" alt="Chef Special 3" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-r from-transparent to-brand-dark-surface/80 hidden md:block"></div>
+                        </div>
+                        <div class="md:w-1/2 glass-light p-8 md:p-12 flex flex-col justify-center">
+                            <span class="inline-flex items-center gap-2 text-[10px] font-bold tracking-[0.25em] uppercase text-brand-warm mb-3">
+                                <i class="fa-solid fa-star"></i> Limited Edition
+                            </span>
+                            <h3 class="font-display text-2xl md:text-3xl font-bold text-brand-cream mb-3">Saffron Phirni Trio</h3>
+                            <p class="text-brand-cream/50 text-sm leading-relaxed mb-5">Three artisanal phirnis — classic saffron, pistachio, and rose petal. A royal dessert experience in earthen pots.</p>
+                            <div class="flex items-center gap-4 mb-6">
+                                <span class="text-brand-gold font-display text-2xl font-bold">₹179</span>
+                                <span class="text-brand-cream/30 text-sm line-through">₹249</span>
+                                <span class="bg-brand-warm/20 text-brand-warm text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-full">28% Off</span>
+                            </div>
+                            <button onclick="addToCart('Saffron Phirni Trio')" class="btn-gold text-brand-dark text-xs font-semibold tracking-wider uppercase px-6 py-3 rounded-full self-start inline-flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> Add to Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Slider controls -->
+            <div class="flex items-center justify-center gap-4 mt-8">
+                <button onclick="prevSlide()" class="w-10 h-10 rounded-full border border-brand-gold/30 text-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-chevron-left text-sm"></i>
+                </button>
+                <div class="flex gap-2" id="sliderDots">
+                    <button onclick="goToSlide(0)" class="slider-dot w-2.5 h-2.5 rounded-full bg-brand-gold transition-all"></button>
+                    <button onclick="goToSlide(1)" class="slider-dot w-2.5 h-2.5 rounded-full bg-brand-gold/30 transition-all"></button>
+                    <button onclick="goToSlide(2)" class="slider-dot w-2.5 h-2.5 rounded-full bg-brand-gold/30 transition-all"></button>
+                </div>
+                <button onclick="nextSlide()" class="w-10 h-10 rounded-full border border-brand-gold/30 text-brand-gold/60 hover:bg-brand-gold/10 hover:text-brand-gold transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-chevron-right text-sm"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Location & Hours -->
+<section id="location" class="py-20 sm:py-28 px-4 relative">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-brand-gold/70 mb-4">
+                <span class="w-6 h-px bg-brand-gold/40"></span> Visit Us <span class="w-6 h-px bg-brand-gold/40"></span>
+            </span>
+            <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-brand-cream tracking-tight">Location & Hours</h2>
+            <div class="gold-line mx-auto mt-5"></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            <!-- Map -->
+            <div class="reveal-left glass-light rounded-2xl overflow-hidden h-80 lg:h-auto min-h-[320px]">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3502.0!2d77.2!3d28.6!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDM2JzAwLjAiTiA3N8KwMTInMDAuMCJF!5e0!3m2!1sen!2sin!4v1234567890"
+                    width="100%" height="100%" style="border:0; filter: invert(90%) hue-rotate(180deg) grayscale(0.3) contrast(1.1);" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+
+            <!-- Info card -->
+            <div class="reveal-right glass-light rounded-2xl p-8 md:p-10 flex flex-col justify-between">
+                <div>
+                    <h3 class="font-display text-2xl font-semibold text-brand-cream mb-6">Find Us Here</h3>
+
+                    <div class="space-y-5">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-brand-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i class="fa-solid fa-location-dot text-brand-gold"></i>
+                            </div>
+                            <div>
+                                <p class="text-brand-cream/80 text-sm font-medium">Address</p>
+                                <p class="text-brand-cream/50 text-sm">42, Food Street, Connaught Place, New Delhi — 110001</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-brand-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i class="fa-solid fa-clock text-brand-gold"></i>
+                            </div>
+                            <div>
+                                <p class="text-brand-cream/80 text-sm font-medium">Opening Hours</p>
+                                <div class="text-brand-cream/50 text-sm space-y-0.5">
+                                    <p>Mon – Fri: 11:00 AM – 11:00 PM</p>
+                                    <p>Sat – Sun: 10:00 AM – 12:00 AM</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-brand-gold/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <i class="fa-solid fa-phone text-brand-gold"></i>
+                            </div>
+                            <div>
+                                <p class="text-brand-cream/80 text-sm font-medium">Contact</p>
+                                <a href="tel:+919876543210" class="text-brand-gold text-sm hover:text-brand-gold-light transition-colors">+91 98765 43210</a>
+                                <p class="text-brand-cream/50 text-sm">hello@flavourhub.in</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex flex-wrap gap-3">
+                    <a href="tel:+919876543210" class="btn-outline text-brand-gold text-xs font-semibold tracking-wider uppercase px-5 py-2.5 rounded-full inline-flex items-center gap-2">
+                        <i class="fa-solid fa-phone"></i> Call Us
+                    </a>
+                    <a href="https://wa.me/919876543210?text=Hi%20Flavour%20Hub!%20I'd%20like%20to%20place%20an%20order." target="_blank" class="btn-gold text-brand-dark text-xs font-semibold tracking-wider uppercase px-5 py-2.5 rounded-full inline-flex items-center gap-2">
+                        <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section id="reviews" class="py-20 sm:py-28 px-4 relative">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-brand-gold/3 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <span class="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-brand-gold/70 mb-4">
+                <span class="w-6 h-px bg-brand-gold/40"></span> Testimonials <span class="w-6 h-px bg-brand-gold/40"></span>
+            </span>
+            <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-brand-cream tracking-tight">What People Say</h2>
+            <div class="gold-line mx-auto mt-5"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+            <!-- Review 1 -->
+            <div class="testimonial-card glass-light rounded-2xl p-8 reveal" style="transition-delay:0.1s">
+                <div class="flex gap-1 mb-5">
+                    <i class="fa-solid fa-star star-gold text-sm"></i>
+                    <i class="fa-solid fa-star star-gold text-sm"></i>
+                    <i class="fa-solid fa-star star-gold text-sm"></i>
+                    <i class="fa-solid fa-star star-gold text-sm"></i>
+                    <i class="fa-solid fa-star star-gold text-sm"></i>
+                </div>
+                <p class="text-brand-cream/70 text-sm leading-relaxed mb-6 italic">"The Royal Biriyani is an absolute masterpiece. Every grain of rice is infused with incredible flavor. This is hands down the best street food I've ever had — gourmet quality at street prices!"</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-gold/30">
+                        <img src="https://picsum.photos/seed/person1/100/100.jpg" alt="Priya S." class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <p class="text-brand-cream font-semibold text-sm">Priya Sharma</p>
+                        <p class="text-brand-cream/40 text-xs">Food Blogger • Delhi</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Review 2 -->
+            <div class="testimonial-card glass-light rounded-2xl p-8 reveal" style="transition-delay:0.2s">
+                <div class="flex gap-1 mb-5">
+                    <i class="fa-solid fa-star star-gold text-sm"></i>
+                    <i class="fa-solid fa-star star-gold text-sm"></i>
+                    <i class="fa-solid fa-star star-gold text-sm"></i>
+                    <i class="fa-solid fa-star star-gold text-sm"></i>
+                    <i class="fa-solid fa-star-half-stroke star-gold text-sm"></i>
+                </div>
+                <p class="text-brand-cream/70 text-sm leading-relaxed mb-6 italic">"Obsessed with their Seekh Kebabs! The smoky flavor is unreal. Fast delivery, great packaging, and the food arrives piping hot. Flavour Hub is now my weekly ritual. Highly recommend!"</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-gold/30">
+                        <img src="https://picsum.photos/seed/person2/100/100.jpg" alt="Arjun M." class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <p class="text-brand-cream font-semibold text-sm">Arjun Mehta</p>
+                        <p class="text-brand-cream/40 text-xs">Software Engineer • Gurgaon</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Order / Reservation CTA -->
+<section id="order" class="py-20 sm:py-28 px-4 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-brand-gold/5 via-brand-dark to-brand-warm/5 pointer-events-none"></div>
+    <div class="absolute inset-0 hero-pattern opacity-30 pointer-events-none"></div>
+
+    <div class="relative max-w-4xl mx-auto text-center reveal">
+        <span class="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.25em] uppercase text-brand-gold/70 mb-4">
+            <span class="w-6 h-px bg-brand-gold/40"></span> Ready to Order? <span class="w-6 h-px bg-brand-gold/40"></span>
+        </span>
+        <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-brand-cream tracking-tight mb-5">Taste the Excellence</h2>
+        <p class="text-brand-cream/50 text-base sm:text-lg max-w-lg mx-auto mb-10 leading-relaxed">Order directly via WhatsApp for the fastest service, or find us on your favorite food delivery platforms.</p>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <a href="https://wa.me/919876543210?text=Hi%20Flavour%20Hub!%20I'd%20like%20to%20place%20an%20order.%20Please%20share%20today's%20menu!" target="_blank" class="bg-[#25D366] hover:bg-[#20bd5a] text-white text-sm font-semibold tracking-wider uppercase px-8 py-4 rounded-full inline-flex items-center justify-center gap-3 transition-all duration-300 hover:-translate-y-1 shadow-lg shadow-green-900/30">
+                <i class="fa-brands fa-whatsapp text-xl"></i> WhatsApp Order
+            </a>
+            <a href="tel:+919876543210" class="btn-outline text-brand-gold text-sm font-semibold tracking-wider uppercase px-8 py-4 rounded-full inline-flex items-center justify-center gap-3">
+                <i class="fa-solid fa-phone"></i> Call to Order
+            </a>
+        </div>
+
+        <!-- Delivery platforms -->
+        <div class="flex flex-col items-center gap-4">
+            <p class="text-brand-cream/30 text-xs tracking-widest uppercase">Also Available On</p>
+            <div class="flex gap-4">
+                <button onclick="showToast('Redirecting to Swiggy...')" class="glass-light hover:border-brand-gold/30 rounded-xl px-6 py-3 flex items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 group">
+                    <div class="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-bowl-food text-orange-400 text-sm"></i>
+                    </div>
+                    <span class="text-brand-cream/60 group-hover:text-brand-cream text-sm font-medium">Swiggy</span>
+                </button>
+                <button onclick="showToast('Redirecting to Zomato...')" class="glass-light hover:border-brand-gold/30 rounded-xl px-6 py-3 flex items-center gap-2.5 transition-all duration-300 hover:-translate-y-1 group">
+                    <div class="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center">
+                        <i class="fa-solid fa-utensils text-red-400 text-sm"></i>
+                    </div>
+                    <span class="text-brand-cream/60 group-hover:text-brand-cream text-sm font-medium">Zomato</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-white/5 pt-16 pb-8 px-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            <!-- Brand -->
+            <div class="md:col-span-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-gold to-brand-warm flex items-center justify-center">
+                        <i class="fa-solid fa-fire-flame-curved text-brand-dark text-lg"></i>
+                    </div>
+                    <span class="font-display text-xl font-semibold tracking-wide text-brand-cream">FLAVOUR HUB</span>
+                </div>
+                <p class="text-brand-cream/40 text-sm leading-relaxed max-w-xs mb-6">Premium street food crafted with passion. Where every bite is a celebration of bold flavors and culinary excellence.</p>
+                <!-- Social icons -->
+                <div class="flex gap-3">
+                    <a href="#" class="w-9 h-9 rounded-full border border-white/10 text-brand-cream/40 hover:text-brand-gold hover:border-brand-gold/30 flex items-center justify-center transition-all duration-300">
+                        <i class="fa-brands fa-instagram text-sm"></i>
+                    </a>
+                    <a href="#" class="w-9 h-9 rounded-full border border-white/10 text-brand-cream/40 hover:text-brand-gold hover:border-brand-gold/30 flex items-center justify-center transition-all duration-300">
+                        <i class="fa-brands fa-facebook-f text-sm"></i>
+                    </a>
+                    <a href="#" class="w-9 h-9 rounded-full border border-white/10 text-brand-cream/40 hover:text-brand-gold hover:border-brand-gold/30 flex items-center justify-center transition-all duration-300">
+                        <i class="fa-brands fa-x-twitter text-sm"></i>
+                    </a>
+                    <a href="#" class="w-9 h-9 rounded-full border border-white/10 text-brand-cream/40 hover:text-brand-gold hover:border-brand-gold/30 flex items-center justify-center transition-all duration-300">
+                        <i class="fa-brands fa-youtube text-sm"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-brand-cream font-semibold text-sm mb-4 tracking-wide">Quick Links</h4>
+                <div class="flex flex-col gap-2.5">
+                    <a href="#menu" class="text-brand-cream/40 text-sm hover:text-brand-gold transition-colors">Menu</a>
+                    <a href="#chef" class="text-brand-cream/40 text-sm hover:text-brand-gold transition-colors">Chef's Special</a>
+                    <a href="#location" class="text-brand-cream/40 text-sm hover:text-brand-gold transition-colors">Location</a>
+                    <a href="#reviews" class="text-brand-cream/40 text-sm hover:text-brand-gold transition-colors">Reviews</a>
+                    <a href="#order" class="text-brand-cream/40 text-sm hover:text-brand-gold transition-colors">Order Online</a>
+                </div>
+            </div>
+
+            <!-- Newsletter -->
+            <div>
+                <h4 class="text-brand-cream font-semibold text-sm mb-4 tracking-wide">Stay Updated</h4>
+                <p class="text-brand-cream/40 text-sm mb-4">Get exclusive deals & new dish alerts.</p>
+                <form onsubmit="handleNewsletter(event)" class="flex gap-2">
+                    <input type="email" placeholder="Your email" required class="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2.5 text-sm text-brand-cream placeholder:text-brand-cream/30 focus:outline-none focus:border-brand-gold/40 transition-colors">
+                    <button type="submit" class="btn-gold text-brand-dark text-xs font-semibold tracking-wider px-4 py-2.5 rounded-full">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Bottom bar -->
+        <div class="border-t border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p class="text-brand-cream/30 text-xs">© 2025 Flavour Hub. All rights reserved.</p>
+            <div class="flex gap-6">
+                <a href="#" class="text-brand-cream/30 text-xs hover:text-brand-gold/60 transition-colors">Privacy Policy</a>
+                <a href="#" class="text-brand-cream/30 text-xs hover:text-brand-gold/60 transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/919876543210?text=Hi%20Flavour%20Hub!%20I'd%20like%20to%20know%20more." target="_blank" class="fixed bottom-6 right-6 z-40 w-14 h-14 bg-[#25D366] hover:bg-[#20bd5a] rounded-full flex items-center justify-center shadow-lg shadow-green-900/40 transition-all duration-300 hover:-translate-y-1 pulse-green group" aria-label="Chat on WhatsApp">
+    <i class="fa-brands fa-whatsapp text-white text-2xl relative z-10"></i>
+</a>
+
+<!-- Back to Top -->
+<button id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" class="fixed bottom-6 left-6 z-40 w-11 h-11 glass rounded-full flex items-center justify-center text-brand-gold/60 hover:text-brand-gold transition-all duration-300 hover:-translate-y-1" aria-label="Back to top">
+    <i class="fa-solid fa-chevron-up text-sm"></i>
+</button>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast fixed bottom-24 right-6 z-50 glass rounded-xl px-5 py-3 flex items-center gap-3 pointer-events-none">
+    <i class="fa-solid fa-circle-check text-brand-gold"></i>
+    <span id="toastText" class="text-brand-cream text-sm font-medium"></span>
+</div>
+
+<script>
+    // ===== LOADER =====
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.getElementById('loader').classList.add('hidden');
+            // Trigger initial reveals
+            document.querySelectorAll('#hero .reveal').forEach(el => el.classList.add('visible'));
+        }, 1200);
+    });
+
+    // ===== NAVBAR SCROLL =====
+    const navbar = document.getElementById('navbar');
+    const backToTop = document.getElementById('backToTop');
+
+    window.addEventListener('scroll', () => {
+        const scrollY = window.scrollY;
+        if (scrollY > 80) {
+            navbar.classList.add('nav-solid');
+        } else {
+            navbar.classList.remove('nav-solid');
+        }
+        if (scrollY > 500) {
+            backToTop.classList.add('show');
+        } else {
+            backToTop.classList.remove('show');
+        }
+    });
+
+    // ===== MOBILE MENU =====
+    const menuToggle = document.getElementById('menuToggle');
+    const menuClose = document.getElementById('menuClose');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuOverlay = document.getElementById('menuOverlay');
+
+    function openMenu() {
+        mobileMenu.classList.add('open');
+        menuOverlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeMenu() {
+        mobileMenu.classList.remove('open');
+        menuOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
+    menuToggle.addEventListener('click', openMenu);
+    menuClose.addEventListener('click', closeMenu);
+    menuOverlay.addEventListener('click', closeMenu);
+
+    document.querySelectorAll('.mobile-link').forEach(link => {
+        link.addEventListener('click', closeMenu);
+    });
+
+    // ===== SCROLL REVEAL =====
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+        if (!el.closest('#hero')) {
+            revealObserver.observe(el);
+        }
+    });
+
+    // ===== CHEF'S SPECIAL SLIDER =====
+    let currentSlide = 0;
+    const totalSlides = 3;
+    const slider = document.getElementById('chefSlider');
+    const dots = document.querySelectorAll('.slider-dot');
+    let autoSlideInterval;
+
+    function updateSlider() {
+        slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+        dots.forEach((dot, i) => {
+            dot.classList.toggle('bg-brand-gold', i === currentSlide);
+            dot.classList.toggle('bg-brand-gold/30', i !== currentSlide);
+            dot.style.width = i === currentSlide ? '24px' : '10px';
+            dot.style.borderRadius = '999px';
+        });
+    }
+
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % totalSlides;
+        updateSlider();
+        resetAutoSlide();
+    }
+
+    function prevSlide() {
+        currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+        updateSlider();
+        resetAutoSlide();
+    }
+
+    function goToSlide(index) {
+        currentSlide = index;
+        updateSlider();
+        resetAutoSlide();
+    }
+
+    function startAutoSlide() {
+        autoSlideInterval = setInterval(nextSlide, 5000);
+    }
+
+    function resetAutoSlide() {
+        clearInterval(autoSlideInterval);
+        startAutoSlide();
+    }
+
+    startAutoSlide();
+    updateSlider();
+
+    // ===== CART =====
+    let cartCount = 0;
+    const cartBadge = document.getElementById('cartBadge');
+
+    function addToCart(item) {
+        cartCount++;
+        cartBadge.textContent = cartCount;
+        cartBadge.classList.remove('badge-bounce');
+        void cartBadge.offsetWidth; // reflow
+        cartBadge.classList.add('badge-bounce');
+        showToast(`${item} added to cart!`);
+    }
+
+    document.getElementById('cartBtn').addEventListener('click', () => {
+        if (cartCount === 0) {
+            showToast('Your cart is empty. Add some delicious items!');
+        } else {
+            showToast(`You have ${cartCount} item${cartCount > 1 ? 's' : ''} in your cart.`);
+        }
+    });
+
+    // ===== TOAST =====
+    let toastTimeout;
+    function showToast(message) {
+        const toast = document.getElementById('toast');
+        const toastText = document.getElementById('toastText');
+        toastText.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // ===== NEWSLETTER =====
+    function handleNewsletter(e) {
+        e.preventDefault();
+        const input = e.target.querySelector('input');
+        showToast('Thanks for subscribing! 🎉');
+        input.value = '';
+    }
+
+    // ===== SMOOTH SCROLL for anchor links =====
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            e.preventDefault();
+            const target = document.querySelector(href);
+            if (target) {
+                const offset = 80;
+                const top = target.getBoundingClientRect().top + window.scrollY - offset;
+                window.scrollTo({ top, behavior: 'smooth' });
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
